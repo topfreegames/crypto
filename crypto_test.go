@@ -6,8 +6,11 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
+	"strings"
 	"testing"
 
+	"golang.org/x/crypto/argon2"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
@@ -26,6 +29,25 @@ func TestComparingArgon2Works(t *testing.T) {
 	equal, err = argon2.Compare(anotherText, hash)
 	if err != nil || equal {
 		t.Errorf("deemed messages as equals. err: %s", err)
+	}
+}
+
+func TestArgon2EncodingCorrectly(t *testing.T) {
+	a := NewArgon2()
+	a.Iterations = 2
+	a.MemoryKB = 1024
+	a.Threads = 1
+
+	expectedEncodedPrefix := fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d", argon2.Version, a.MemoryKB, a.Iterations, a.Threads)
+
+	text := []byte("random text")
+	hash, err := a.Hash(text)
+	if err != nil {
+		t.Errorf("could not hash with argon. err: %s", err)
+	}
+
+	if !strings.HasPrefix(hash, expectedEncodedPrefix) {
+		t.Errorf("hash prefix not expected:\n%v\n%v", hash, expectedEncodedPrefix)
 	}
 }
 
