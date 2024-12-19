@@ -151,7 +151,7 @@ type Argon2 struct {
 func NewArgon2() *Argon2 {
 	return &Argon2{
 		Iterations:    1,
-		MemoryKB:      64 * 1024,
+		MemoryKB:      4 * 1024,
 		Threads:       4,
 		keyLen:        32,
 		saltSizeBytes: 16,
